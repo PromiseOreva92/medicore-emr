@@ -29,3 +29,6 @@ jobs:
 
       - name: Build Project
         run: mvn clean package
+
+      - name: Run Tests
+        run: mvn test
