@@ -2,9 +2,12 @@ package com.app.medicore.service.impl;
 
 import com.app.medicore.dto.PatientRequest;
 import com.app.medicore.entity.Patient;
+import com.app.medicore.exception.PatientNotFoundException;
 import com.app.medicore.repository.PatientRepository;
 import com.app.medicore.service.PatientService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -47,14 +50,25 @@ public class PatientServiceImpl
 
         return patientRepository.findById(id)
                 .orElseThrow(() ->
-                        new RuntimeException(
-                                "Patient not found"));
+                        new PatientNotFoundException(
+                                "Patient not found with id " + id));
     }
 
-    @Override
-    public List<Patient> getAllPatients() {
 
-        return patientRepository.findAll();
+
+
+    //    public List<Patient> getAllPatients() {
+//
+//        return patientRepository.findAll();
+//    }
+    @Override
+    public Page<Patient> getAllPatients(
+            int page,
+            int size) {
+
+        return patientRepository.findAll(
+                PageRequest.of(page, size)
+        );
     }
 
     @Override
@@ -92,5 +106,19 @@ public class PatientServiceImpl
     public void deletePatient(Long id) {
 
         patientRepository.deleteById(id);
+    }
+
+    @Override
+    public Page<Patient> searchPatients(
+            String name,
+            int page,
+            int size) {
+
+        return patientRepository
+                .findByFirstNameContainingIgnoreCaseOrLastNameContainingIgnoreCase(
+                        name,
+                        name,
+                        PageRequest.of(page, size)
+                );
     }
 }
